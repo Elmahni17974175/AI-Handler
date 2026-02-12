@@ -237,11 +237,7 @@ namespace msmAIHandler {
      * Alias pédagogique : "Update and get results"
      * (On garde aussi majCamera() pour compatibilité avec ton code)
      */
-    //% block="Mettre a jour camera"
-    //% group="Vision (couleur)"
-    export function updateCamera(): void {
-        wondercam.UpdateResult()
-    }
+
 
     //% block="mettre à jour caméra WonderCam"
     //% group="Vision (couleur)"
