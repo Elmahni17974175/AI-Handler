@@ -3,7 +3,7 @@
  * DaDa:bit + WonderCam (via dadabit)
  *
  * IMPORTANT :
- * - Pas de basic.forever() ici (l’élève appelle "cycleMission()" dans forever)
+ * - Pas de basic.forever() ici (l’élève écrit la boucle dans son programme)
  */
 
 //% color=#00BCD4 icon="\uf1b9" block="MSM AI Handler"
@@ -46,10 +46,7 @@ namespace msmAIHandler {
     // INIT
     // =========================================================
 
-    /**
-     * Initialise DaDa:bit + WonderCam + position bras/pince.
-     */
-    //% block="initialiser le robot AI Handler"
+    //% block="initialiser le robot"
     //% group="Init"
     export function initialiserRobot(): void {
         dadabit.dadabit_init()
@@ -60,7 +57,7 @@ namespace msmAIHandler {
     }
 
     // =========================================================
-    // RÉGLAGES (pour simplifier aux élèves)
+    // RÉGLAGES
     // =========================================================
 
     //% block="régler vitesses | tout droit %vTD | correction %vC | petite %vP"
@@ -71,7 +68,7 @@ namespace msmAIHandler {
         petiteVitesse = vP
     }
 
-    //% block="régler vision | couleur ID %id | Xmin %xmin | Xmax %xmax | Y approche %y | validations %seuil"
+    //% block="régler vision | couleur ID %id | X min %xmin | X max %xmax | Y approche %y | validations %seuil"
     //% group="Réglages"
     export function reglerVision(id: number, xmin: number, xmax: number, y: number, seuil: number): void {
         ID_CUBE = id
@@ -98,7 +95,7 @@ namespace msmAIHandler {
         TEMPS_ATTENTE = ta
     }
 
-    //% block="réinitialiser mission (ne porte rien)"
+    //% block="réinitialiser la mission (ne porte rien)"
     //% group="Réglages"
     export function resetMission(): void {
         modeMission = 0
@@ -106,22 +103,22 @@ namespace msmAIHandler {
     }
 
     // =========================================================
-    // GETTERS (pour reproduire la boucle “comme sur l’image”)
+    // GETTERS (pour reproduire la boucle des élèves)
     // =========================================================
 
-    //% block="ID_CUBE"
+    //% block="ID du cube"
     //% group="Réglages"
     export function ID_CUBE_get(): number {
         return ID_CUBE
     }
 
-    //% block="Y_APPROCHE"
+    //% block="Y d'approche"
     //% group="Réglages"
     export function Y_APPROCHE_get(): number {
         return Y_APPROCHE
     }
 
-    //% block="SEUIL_VALIDATION"
+    //% block="seuil de validation"
     //% group="Réglages"
     export function SEUIL_VALIDATION_get(): number {
         return SEUIL_VALIDATION
@@ -131,7 +128,7 @@ namespace msmAIHandler {
     // CAPTEURS LIGNE
     // =========================================================
 
-    //% block="mettre à jour capteurs de ligne"
+    //% block="mettre à jour les capteurs de ligne"
     //% group="Capteurs ligne"
     export function mettreAJourCapteursLigne(): void {
         capteur1 = dadabit.line_followers(dadabit.LineFollowerSensors.S1, dadabit.LineColor.Black)
@@ -140,14 +137,14 @@ namespace msmAIHandler {
         capteur4 = dadabit.line_followers(dadabit.LineFollowerSensors.S4, dadabit.LineColor.Black)
     }
 
-    //% block="arrivée détectée ? (4 capteurs sur noir)"
+    //% block="arrivée détectée ? (S1 S2 S3 S4 sur noir)"
     //% group="Capteurs ligne"
     export function arriveeDetectee(): boolean {
         return capteur1 && capteur2 && capteur3 && capteur4
     }
 
     // =========================================================
-    // MOUVEMENTS (de base)
+    // MOUVEMENTS
     // =========================================================
 
     //% block="avancer à vitesse %v"
@@ -196,10 +193,10 @@ namespace msmAIHandler {
     }
 
     // =========================================================
-    // SUIVI DE LIGNE (1 bloc “étape”)
+    // SUIVI DE LIGNE
     // =========================================================
 
-    //% block="suivi de ligne"
+    //% block="suivre la ligne (1 étape)"
     //% group="Suivi de ligne"
     export function suiviDeLigne(): void {
         if (capteur2 && capteur3) {
@@ -221,47 +218,35 @@ namespace msmAIHandler {
             dadabit.setLego360Servo(3, dadabit.Oriention.Counterclockwise, petiteVitesse)
             dadabit.setLego360Servo(4, dadabit.Oriention.Clockwise, vitesseCorrection)
         } else if (capteur1 && !capteur2 && (!capteur3 && !capteur4)) {
-            // forte gauche
             corrigerAGauche(vitesseToutDroit)
         } else if (capteur4 && !capteur1 && (!capteur2 && !capteur3)) {
-            // forte droite
             corrigerADroite(vitesseToutDroit)
         }
     }
 
     // =========================================================
-    // VISION (couleur) : blocs “comme sur l’image”
+    // VISION (couleur)
     // =========================================================
 
-    /**
-     * Alias pédagogique : "Update and get results"
-     * (On garde aussi majCamera() pour compatibilité avec ton code)
-     */
-
-
-    //% block="mettre à jour caméra WonderCam"
+    //% block="mettre à jour la caméra (résultats)"
     //% group="Vision (couleur)"
-    export function majCamera(): void {
+    export function mettreAJourCamera(): void {
         wondercam.UpdateResult()
     }
 
-    //% block="Is color ID %id detected ?"
+    //% block="couleur ID %id détectée ?"
     //% group="Vision (couleur)"
     export function cubeDetecte(id: number): boolean {
         return wondercam.isDetectedColorId(id)
     }
 
-    //% block="Y of color ID %id"
+    //% block="position Y de la couleur ID %id"
     //% group="Vision (couleur)"
     export function yCube(id: number): number {
         return wondercam.XOfColorId(wondercam.Options.Pos_Y, id)
     }
 
-    /**
-     * Version GÉNÉRIQUE : détection stable pour n’importe quel ID + seuil
-     * (utile pour reproduire exactement la boucle de ton image)
-     */
-    //% block="détection stable couleur ID %id avec seuil %seuil"
+    //% block="détection stable | couleur ID %id | seuil %seuil"
     //% group="Vision (couleur)"
     export function detectionStableCouleur(id: number, seuil: number): boolean {
         const detecte = wondercam.isDetectedColorId(id)
@@ -279,21 +264,18 @@ namespace msmAIHandler {
         return false
     }
 
-    /**
-     * Version “réglages internes” (comme tu l’avais)
-     */
-    //% block="cube couleur détecté de façon stable ?"
+    //% block="cube détecté de façon stable ? (réglages)"
     //% group="Vision (couleur)"
     export function cubeDetecteStable(): boolean {
         return detectionStableCouleur(ID_CUBE, SEUIL_VALIDATION)
     }
 
-    //% block="approcher le cube (jusqu'à Y approche)"
+    //% block="approcher le cube (jusqu'à Y d'approche)"
     //% group="Vision (couleur)"
     export function approcherCube(): void {
         while (wondercam.XOfColorId(wondercam.Options.Pos_Y, ID_CUBE) < Y_APPROCHE
             && wondercam.isDetectedColorId(ID_CUBE)) {
-            majCamera()
+            mettreAJourCamera()
             mettreAJourCapteursLigne()
             suiviDeLigne()
         }
@@ -315,13 +297,13 @@ namespace msmAIHandler {
         dadabit.setLego270Servo(5, BRAS_BAS, TEMPS_MOUVEMENT)
     }
 
-    //% block="ouvrir pince"
+    //% block="ouvrir la pince"
     //% group="Bras & Pince"
     export function ouvrirPince(): void {
         dadabit.setLego270Servo(6, PINCE_OUVERTE, TEMPS_MOUVEMENT)
     }
 
-    //% block="fermer pince"
+    //% block="fermer la pince"
     //% group="Bras & Pince"
     export function fermerPince(): void {
         dadabit.setLego270Servo(6, PINCE_FERMEE, TEMPS_MOUVEMENT)
@@ -363,7 +345,7 @@ namespace msmAIHandler {
     }
 
     // =========================================================
-    // MISSION : blocs demandés (nePortePasCube + bip) + existants
+    // MISSION
     // =========================================================
 
     //% block="ne porte pas de cube ?"
@@ -372,13 +354,9 @@ namespace msmAIHandler {
         return modeMission == 0
     }
 
-    //% block="porte un cube ?"
-    //% group="Mission"
-    export function porteUnCube(): boolean {
-        return modeMission == 1
-    }
+ 
 
-    //% block="jouer bip"
+    //% block="bip (signal sonore)"
     //% group="Mission"
     export function jouerBip(): void {
         music.play(music.tonePlayable(262, music.beat(BeatFraction.Whole)), music.PlaybackMode.UntilDone)
@@ -410,27 +388,18 @@ namespace msmAIHandler {
         }
     }
 
-    /**
-     * 1 étape de la logique complète (à appeler dans forever).
-     * - update caméra + ligne
-     * - si cube stable et on ne porte pas → approche → attrape
-     * - si arrivée → destination
-     * - sinon → suivi de ligne
-     */
-    //% block="cycle mission AI Handler (1 étape)"
+    //% block="cycle mission (1 étape)"
     //% group="Mission"
     export function cycleMission(): void {
-        majCamera()
+        mettreAJourCamera()
         mettreAJourCapteursLigne()
 
-        // Détection stable + approche + attraper (seulement si on ne porte rien)
         if (modeMission == 0 && cubeDetecteStable()) {
             jouerBip()
             approcherCube()
             attraperCube()
         }
 
-        // Arrivée ?
         if (arriveeDetectee()) {
             destination()
         } else {
